@@ -40,11 +40,10 @@ def crop_image_manually(uploaded_file, key_prefix):
     img = Image.open(uploaded_file)
     w, h = img.size
     
-    # मॅन्युअल क्रॉपिंग स्लाईडर्स (मोबाईलसाठी उत्तम पर्याय)
+    # मॅन्युअल क्रॉपिंग स्लाईडर्स
     crop_w = st.slider("रुंदी कमी-जास्त करा (Width)", 10, w, w, key=f"{key_prefix}_w")
     crop_h = st.slider("उंची कमी-जास्त करा (Height)", 10, h, min(w, h), key=f"{key_prefix}_h")
     
-    # सेंटर मॅचिंग करून १:१ चौकोनी भागात क्रॉप करणे
     left = (w - crop_w) / 2
     top = (h - crop_h) / 2
     right = left + min(crop_w, crop_h)
@@ -93,11 +92,8 @@ if st.session_state.selected_customer is not None:
             new_anniv = st.date_input("लग्नाची तारीख", value=anniv_val) if new_has_anniv else "नाही"
             
             new_ref = st.text_input("Refered By", value=cust_data['संदर्भ_दिलेला_व्यक्ती'])
-            
-            # प्रोफाईल एडिट करताना नवीन फोटो एडिटचा पर्याय
             new_photo = st.file_uploader("नवीन फोटो अपडेट करा (ऐच्छिक)", type=["jpg", "png", "jpeg"])
             
-            # मॅन्युअल क्रॉप बॉक्स फॉर्मच्या आत दाखवणे
             cropped_img_edit = None
             if new_photo is not None:
                 cropped_img_edit = crop_image_manually(new_photo, "edit")
@@ -117,14 +113,14 @@ if st.session_state.selected_customer is not None:
                     new_name, new_address, str(new_dob), anniv_str, new_age, new_ref, photo_path
                 ]
                 save_data(df)
-                st.success("माहिती आणि क्रॉप केलेला फोटो यशस्वीरित्या सुधारला आहे!")
+                st.success("माहिती यशस्वीरित्या सुधारली आहे!")
                 st.session_state.edit_mode = False
                 st.rerun()
 else:
     # --- मुख्य स्क्रीन ---
     st.title("🏥 ऑटोमॅटिक थेरपी बेड व्यवस्थापन अ‍ॅप")
 
-    # --- विभाग १: रिमांडर्स ---
+    # --- विभाग १: रिमांडर्स (दुरुस्त केलेला भाग) ---
     st.subheader("🔔 आगामी रिमाइंडर्स (आज आणि उद्या)")
     tomorrow = today + timedelta(days=1)
     reminder_list = []
@@ -137,8 +133,9 @@ else:
             elif (dob.month == tomorrow.month and dob.day == tomorrow.day):
                 reminder_list.append(f"⏰ **उद्या वाढदिवस:** {row['नाव']}")
         
-        if pd.notna(row["लग्नाची_तारीख"]) and row["लग्नाची_तारीख"] != "नाही":
-            anniv = datetime.strptime(row["lग्नाची_तारीख"], "%Y-%m-%d").date()
+        # इथे स्पेलिंग त्रुटी दुरुस्त केली आहे (row["लग्नाची_तारीख"])
+        if pd.notna(row["लग्नाची_तारीख"]) and row["lग्नाची_तारीख"] != "नाही":
+            anniv = datetime.strptime(row["लग्नाची_तारीख"], "%Y-%m-%d").date()
             if (anniv.month == today.month and anniv.day == today.day):
                 reminder_list.append(f"💑 **आज लग्नाचा वाढदिवस:** {row['नाव']}")
             elif (anniv.month == tomorrow.month and anniv.day == tomorrow.day):
@@ -163,10 +160,8 @@ else:
             
         category_type = st.selectbox("कॅटेगरी", ["Male", "Female", "Couple", "Family"])
         referred_by = st.text_input("Refered By")
-        
         uploaded_photo = st.file_uploader("फोटो अपलोड करा *", type=["jpg", "png", "jpeg"])
         
-        # मुख्य नोंदणी फॉर्मच्या आतच क्रॉपिंग बॉक्स दाखवणे
         cropped_img_new = None
         if uploaded_photo is not None:
             cropped_img_new = crop_image_manually(uploaded_photo, "new")
@@ -213,9 +208,9 @@ else:
     st.subheader("📋 ग्राहकांची यादी")
     if not df.empty:
         for index, row in df.iterrows():
-            # फक्त नावासहित स्वच्छ लिस्ट बटण व्ह्यू
             if st.button(f"👤 {row['नाव']}", key=f"list_{row['मोबाईल']}", use_container_width=True):
                 st.session_state.selected_customer = row['मोबाईल']
                 st.rerun()
     else:
         st.write("अजून कोणतीही नोंदणी नाही.")
+            

@@ -28,13 +28,13 @@ def save_data(df):
 df = load_data()
 today = datetime.now().date()
 
-# सेशन स्टेट सुरू करणे
+# सेशन State व्यवस्थापन
 if "selected_customer" not in st.session_state:
     st.session_state.selected_customer = None
 if "edit_mode" not in st.session_state:
     st.session_state.edit_mode = False
 
-# फाईल क्रॉप करण्यासाठीचे मदतनीस फंक्शन
+# फोटो मॅन्युअल क्रॉप करण्यासाठीचे फंक्शन
 def crop_image_manually(uploaded_file, key_prefix):
     st.write("📸 **फोटो संपादन (Manual Crop Option):**")
     img = Image.open(uploaded_file)
@@ -63,7 +63,7 @@ if st.session_state.selected_customer is not None:
     st.title(f"👤 {cust_data['नाव']} यांची प्रोफाईल")
     
     if pd.notna(cust_data["फोटो_पाथ"]) and os.path.exists(cust_data["फोटो_पाथ"]):
-        st.image(cust_data["फोटो_पाथ"], width=200, caption=cust_data['नाव'])
+        st.image(cust_data["फोटो_path"], width=200, caption=cust_data['नाव'])
     else:
         st.warning("या प्रोफाईलला फोटो अपलोड केलेला नाही.")
         
@@ -120,7 +120,7 @@ else:
     # --- मुख्य स्क्रीन ---
     st.title("🏥 ऑटोमॅटिक थेरपी बेड व्यवस्थापन अ‍ॅप")
 
-    # --- विभाग १: रिमांडर्स (दुरुस्त केलेला भाग) ---
+    # --- विभाग १: रिमांडर्स (पूर्णपणे दुरुस्त केलेला भाग) ---
     st.subheader("🔔 आगामी रिमाइंडर्स (आज आणि उद्या)")
     tomorrow = today + timedelta(days=1)
     reminder_list = []
@@ -133,8 +133,8 @@ else:
             elif (dob.month == tomorrow.month and dob.day == tomorrow.day):
                 reminder_list.append(f"⏰ **उद्या वाढदिवस:** {row['नाव']}")
         
-        # इथे स्पेलिंग त्रुटी दुरुस्त केली आहे (row["लग्नाची_तारीख"])
-        if pd.notna(row["लग्नाची_तारीख"]) and row["lग्नाची_तारीख"] != "नाही":
+        # दोन्ही बाजूचे स्पेलिंग अचूक मराठीत दुरुस्त केले आहे
+        if pd.notna(row["लग्नाची_तारीख"]) and row["लग्नाची_तारीख"] != "नाही":
             anniv = datetime.strptime(row["लग्नाची_तारीख"], "%Y-%m-%d").date()
             if (anniv.month == today.month and anniv.day == today.day):
                 reminder_list.append(f"💑 **आज लग्नाचा वाढदिवस:** {row['नाव']}")
@@ -212,5 +212,4 @@ else:
                 st.session_state.selected_customer = row['मोबाईल']
                 st.rerun()
     else:
-        st.write("अजून कोणतीही नोंदणी नाही.")
-            
+        st.write("अहून कोणतीही नोंदणी नाही.")

@@ -82,7 +82,8 @@ with st.form("customer_form", clear_on_submit=True):
     # फोटो अपलोडर (फक्त पहिल्या भेटीत)
     uploaded_photo = st.file_uploader("ग्राहकाचा फोटो अपलोड करा (फक्त पहिल्या भेटीत अनिवार्य)", type=["jpg", "png", "jpeg"])
 
-    submitted = st.form_submit_with_button("नोंदणी करा")
+    # त्रुटी दुरुस्त केलेले बटण (st.form_submit_button)
+    submitted = st.form_submit_button("नोंदणी करा")
 
     if submitted:
         if not name or not address or not mobile:
